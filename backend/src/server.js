@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const initRoutes = require('./routes/init');
+const resetRoutes = require('./routes/reset');
 const authRoutes = require('./routes/auth');
 const vehicleRoutes = require('./routes/vehicles');
 const driverRoutes = require('./routes/drivers');
@@ -50,6 +51,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/init', initRoutes);
+app.use('/api/reset', resetRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/drivers', driverRoutes);
