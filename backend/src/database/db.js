@@ -2,15 +2,8 @@ const { Pool } = require('pg');
 const config = require('../config');
 
 const pool = new Pool({
-  host: config.database.host,
-  port: config.database.port,
-  database: config.database.name,
-  user: config.database.user,
-  password: config.database.password,
-  ssl: config.database.ssl,
-  max: config.database.poolSize,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
 pool.on('connect', () => {
