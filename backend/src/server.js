@@ -4,11 +4,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-const { Pool } = require('pg');
-const fs = require('fs');
-const path = require('path');
 require('dotenv').config();
 
+const initRoutes = require('./routes/init');
 const authRoutes = require('./routes/auth');
 const vehicleRoutes = require('./routes/vehicles');
 const driverRoutes = require('./routes/drivers');
@@ -23,40 +21,6 @@ const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Auto-create database tables on startup
-const setupDatabase = async () => {
-  try {
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
-    });
-    
-    const schemaPath = path.join(__dirname, 'database/schema.sql');
-    const schema = fs.readFileSync(schemaPath, 'utf8');
-    
-    // Split and execute each statement
-    const statements = schema.split(';').filter(s => s.trim().length > 0);
-    for (const stmt of statements) {
-      try {
-        await pool.query(stmt + ';');
-      } catch (e) {
-        // Ignore "already exists" errors
-        if (!e.message.includes('already exists') && !e.message.includes('duplicate')) {
-          console.log('DB Note:', e.message);
-        }
-      }
-    }
-    
-    console.log('Database setup complete!');
-    await pool.end();
-  } catch (err) {
-    console.error('DB Setup Error:', err.message);
-  }
-};
-
-// Run database setup
-setupDatabase();
 
 app.use(helmet());
 app.use(cors({
@@ -85,6 +49,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.use('/api/init', initRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/drivers', driverRoutes);
@@ -111,6 +76,7 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
   console.log(`PSRC TMS API running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 module.exports = app;
