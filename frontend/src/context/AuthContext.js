@@ -1,6 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
+// Set backend URL - this is the fix!
+axios.defaults.baseURL = 'https://psrc-tms-backend.onrender.com';
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
